@@ -1,0 +1,1471 @@
+---
+title: "differencefulljp"
+output: html_document
+date: '2022-07-28'
+---
+
+```{r}
+library("ggplot2")
+library("scales")
+library("dplyr")
+library("DESeq2")
+library("magrittr")
+library("ggpattern")
+library("ggrepel")
+library("zoo")
+list_csv_files_cd <- list.files(path = "/media/central/ONSENmRNA/bamfiles/col", pattern = "*.counts", full.names = T)
+cd_names <- list.files(path = "/media/central/ONSENmRNA/bamfiles/col", pattern = "*.counts")
+cd_names <- sub("Aligned.sortedByCoord.out.bam", "", cd_names)
+cd_names <- sub(".counts", "", cd_names)
+cd_names <- sub("star_", "", cd_names)
+```
+
+```{r}
+cvioutput1 <- read.delim("/media/central/ONSENmRNA/bamfiles/cvi/star_Cvi_heat_1.bed", header=FALSE)
+cvioutput2 <- read.delim("/media/central/ONSENmRNA/bamfiles/cvi/star_Cvi_heat_2.bed", header=FALSE)
+cvioutput3 <- read.delim("/media/central/ONSENmRNA/bamfiles/cvi/star_Cvi_heat_3.bed", header=FALSE)
+cvioutput4 <- read.delim("/media/central/ONSENmRNA/bamfiles/cvi/star_Cvi_heat_4.bed", header=FALSE)
+cvioutput5 <- read.delim("/media/central/ONSENmRNA/bamfiles/cvi/star_Cvi_con_1.bed", header=FALSE)
+cvioutput6 <- read.delim("/media/central/ONSENmRNA/bamfiles/cvi/star_Cvi_con_2.bed", header=FALSE)
+cvioutput7 <- read.delim("/media/central/ONSENmRNA/bamfiles/cvi/star_Cvi_con_3.bed", header=FALSE)
+cvioutput8 <- read.delim("/media/central/ONSENmRNA/bamfiles/cvi/star_Cvi_con_4.bed", header=FALSE)
+
+Cvi0.Copia35.15 <- cvioutput1[cvioutput1$V1 == "chr3" & cvioutput1$V2 >= 13228540 & cvioutput1$V3 <= 13231031,]
+colnames(Cvi0.Copia35.15) <- c("chromosome", "start", "end", "coverage")
+
+ATCVI.1G48270.1 <- cvioutput1[cvioutput1$V1 == "chr1" & cvioutput1$V2 >= 13228540 & cvioutput1$V3 <= 13231031,]
+colnames(ATCVI.1G48270.1) <- c("chromosome", "start", "end", "coverage")
+ATCVI.1G48270.1$end <- ATCVI.1G48270.1$end - 13228540
+ATCVI.1G48270.1$start <- ATCVI.1G48270.1$start - 13228540
+ATCVI.1G48270.1$acc <- "Cvi-0"
+ATCVI.1G48270.1$coverage.nor <- ATCVI.1G48270.1$coverage/62.607630
+ATCVI.1G48270.1$group <- "heat"
+
+ATCVI.1G48270.2 <- cvioutput2[cvioutput2$V1 == "chr1" & cvioutput2$V2 >= 13228540 & cvioutput2$V3 <= 13231031,]
+colnames(ATCVI.1G48270.2) <- c("chromosome", "start", "end", "coverage")
+ATCVI.1G48270.2$end <- ATCVI.1G48270.2$end - 13228540
+ATCVI.1G48270.2$start <- ATCVI.1G48270.2$start - 13228540
+ATCVI.1G48270.2$acc <- "Cvi-0"
+ATCVI.1G48270.2$coverage.nor <- ATCVI.1G48270.2$coverage/56.882981
+ATCVI.1G48270.2$group <- "heat"
+
+ATCVI.1G48270.3 <- cvioutput3[cvioutput3$V1 == "chr1" & cvioutput3$V2 >= 13228540 & cvioutput3$V3 <= 13231031,]
+colnames(ATCVI.1G48270.3) <- c("chromosome", "start", "end", "coverage")
+ATCVI.1G48270.3$end <- ATCVI.1G48270.3$end - 13228540
+ATCVI.1G48270.3$start <- ATCVI.1G48270.3$start - 13228540
+ATCVI.1G48270.3$acc <- "Cvi-0"
+ATCVI.1G48270.3$coverage.nor <- ATCVI.1G48270.3$coverage/61.222157
+ATCVI.1G48270.3$group <- "heat"
+
+ATCVI.1G48270.4 <- cvioutput4[cvioutput4$V1 == "chr1" & cvioutput4$V2 >= 13228540 & cvioutput4$V3 <= 13231031,]
+colnames(ATCVI.1G48270.4) <- c("chromosome", "start", "end", "coverage")
+ATCVI.1G48270.4$end <- ATCVI.1G48270.4$end - 13228540
+ATCVI.1G48270.4$start <- ATCVI.1G48270.4$start - 13228540
+ATCVI.1G48270.4$acc <- "Cvi-0"
+ATCVI.1G48270.4$coverage.nor <- ATCVI.1G48270.4$coverage/58.185995
+ATCVI.1G48270.4$group <- "heat"
+
+ATCVI.1G48270.5 <- cvioutput5[cvioutput5$V1 == "chr1" & cvioutput5$V2 >= 13228540 & cvioutput5$V3 <= 13231031,]
+colnames(ATCVI.1G48270.5) <- c("chromosome", "start", "end", "coverage")
+ATCVI.1G48270.5$end <- ATCVI.1G48270.5$end - 13228540
+ATCVI.1G48270.5$start <- ATCVI.1G48270.5$start - 13228540
+# ATCVI.1G48270.5$acc <- "Cvi-0"
+# ATCVI.1G48270.5$coverage.nor <- ATCVI.1G48270.5$coverage/60.399928
+# ATCVI.1G48270.5$group <- "control"
+
+ATCVI.1G48270.6 <- cvioutput6[cvioutput6$V1 == "chr1" & cvioutput6$V2 >= 13228540 & cvioutput6$V3 <= 13231031,]
+colnames(ATCVI.1G48270.6) <- c("chromosome", "start", "end", "coverage")
+ATCVI.1G48270.6$end <- ATCVI.1G48270.6$end - 13228540
+ATCVI.1G48270.6$start <- ATCVI.1G48270.6$start - 13228540
+ATCVI.1G48270.6$acc <- "Cvi-0"
+ATCVI.1G48270.6$coverage.nor <- ATCVI.1G48270.6$coverage/57.682605
+ATCVI.1G48270.6$group <- "control"
+
+ATCVI.1G48270.7 <- cvioutput7[cvioutput7$V1 == "chr1" & cvioutput7$V2 >= 13228540 & cvioutput7$V3 <= 13231031,]
+colnames(ATCVI.1G48270.7) <- c("chromosome", "start", "end", "coverage")
+ATCVI.1G48270.7$end <- ATCVI.1G48270.7$end - 13228540
+ATCVI.1G48270.7$start <- ATCVI.1G48270.7$start - 13228540
+# ATCVI.1G48270.7$acc <- "Cvi-0"
+# ATCVI.1G48270.7$coverage.nor <- ATCVI.1G48270.7$coverage/59.132900
+# ATCVI.1G48270.7$group <- "control"
+
+ATCVI.1G48270.8 <- cvioutput8[cvioutput8$V1 == "chr1" & cvioutput8$V2 >= 13228540 & cvioutput8$V3 <= 13231031,]
+colnames(ATCVI.1G48270.8) <- c("chromosome", "start", "end", "coverage")
+ATCVI.1G48270.8$end <- ATCVI.1G48270.8$end - 13228540
+ATCVI.1G48270.8$start <- ATCVI.1G48270.8$start - 13228540
+# ATCVI.1G48270.8$acc <- "Cvi-0"
+# ATCVI.1G48270.8$coverage.nor <- ATCVI.1G48270.8$coverage/74.997206
+# ATCVI.1G48270.8$group <- "control"
+
+# Combine the data for the heat and control samples
+cvi_heat_combined <- rbind(ATCVI.1G48270.1, ATCVI.1G48270.2, ATCVI.1G48270.3, ATCVI.1G48270.4)
+cvi_control_combined <-ATCVI.1G48270.6
+
+# Average the normalized coverage for each position
+cvi_heat_avg <- cvi_heat_combined %>%
+  group_by(start) %>%
+  summarize(coverage_avg = mean(coverage.nor))
+
+cvi_control_avg <- cvi_control_combined %>%
+  group_by(start) %>%
+  summarize(coverage_avg = mean(coverage.nor))
+```
+
+```{r}
+#ler atlas
+leroutput1 <- read.delim("/media/central/ONSENmRNA/bamfiles/ler/star_Ler_heat_1.bed", header=FALSE)
+leroutput2 <- read.delim("/media/central/ONSENmRNA/bamfiles/ler/star_Ler_heat_2.bed", header=FALSE)
+leroutput3 <- read.delim("/media/central/ONSENmRNA/bamfiles/ler/star_Ler_heat_3.bed", header=FALSE)
+leroutput4 <- read.delim("/media/central/ONSENmRNA/bamfiles/ler/star_Ler_heat_4.bed", header=FALSE)
+leroutput5 <- read.delim("/media/central/ONSENmRNA/bamfiles/ler/star_Ler_con_1.bed", header=FALSE)
+leroutput6 <- read.delim("/media/central/ONSENmRNA/bamfiles/ler/star_Ler_con_2.bed", header=FALSE)
+leroutput7 <- read.delim("/media/central/ONSENmRNA/bamfiles/ler/star_Ler_con_3.bed", header=FALSE)
+leroutput8 <- read.delim("/media/central/ONSENmRNA/bamfiles/ler/star_Ler_con_4.bed", header=FALSE)
+
+ATLER.1G48170.1 <- leroutput1[leroutput1$V1 == "chr1" & leroutput1$V2 >= 13300050 & leroutput1$V3 <= 13303000,]
+colnames(ATLER.1G48170.1) <- c("chromosome", "start", "end", "coverage")
+ATLER.1G48170.1$end <- ATLER.1G48170.1$end - 13300050
+ATLER.1G48170.1$start <- ATLER.1G48170.1$start - 13300050
+ATLER.1G48170.1$acc <- "Ler-1"
+ATLER.1G48170.1$coverage.nor <- ATLER.1G48170.1$coverage/52.837600
+ATLER.1G48170.1$group <- "heat"
+
+ATLER.1G48170.2 <- leroutput2[leroutput2$V1 == "chr1" & leroutput2$V2 >= 13300050 & leroutput2$V3 <= 13303000,]
+colnames(ATLER.1G48170.2) <- c("chromosome", "start", "end", "coverage")
+ATLER.1G48170.2$end <- ATLER.1G48170.2$end - 13300050
+ATLER.1G48170.2$start <- ATLER.1G48170.2$start - 13300050
+ATLER.1G48170.2$acc <- "Ler-1"
+ATLER.1G48170.2$coverage.nor <- ATLER.1G48170.2$coverage/55.936898
+ATLER.1G48170.2$group <- "heat"
+
+ATLER.1G48170.3 <- leroutput3[leroutput3$V1 == "chr1" & leroutput3$V2 >= 13300050 & leroutput3$V3 <= 13303000,]
+colnames(ATLER.1G48170.3) <- c("chromosome", "start", "end", "coverage")
+ATLER.1G48170.3$end <- ATLER.1G48170.3$end - 13300050
+ATLER.1G48170.3$start <- ATLER.1G48170.3$start - 13300050
+ATLER.1G48170.3$acc <- "Ler-1"
+ATLER.1G48170.3$coverage.nor <- ATLER.1G48170.3$coverage/56.067985
+ATLER.1G48170.3$group <- "heat"
+
+ATLER.1G48170.4 <- leroutput4[leroutput4$V1 == "chr1" & leroutput4$V2 >= 13300050 & leroutput4$V3 <= 13303000,]
+colnames(ATLER.1G48170.4) <- c("chromosome", "start", "end", "coverage")
+ATLER.1G48170.4$end <- ATLER.1G48170.4$end - 13300050
+ATLER.1G48170.4$start <- ATLER.1G48170.4$start - 13300050
+ATLER.1G48170.4$acc <- "Ler-1"
+ATLER.1G48170.4$coverage.nor <- ATLER.1G48170.4$coverage/58.854190
+ATLER.1G48170.4$group <- "heat"
+
+ATLER.1G48170.5 <- leroutput5[leroutput5$V1 == "chr1" & leroutput5$V2 >= 13300050 & leroutput5$V3 <= 13303000,]
+colnames(ATLER.1G48170.5) <- c("chromosome", "start", "end", "coverage")
+ATLER.1G48170.5$end <- ATLER.1G48170.5$end - 13300050
+ATLER.1G48170.5$start <- ATLER.1G48170.5$start - 13300050
+ATLER.1G48170.5$acc <- "Ler-1"
+ATLER.1G48170.5$coverage.nor <- ATLER.1G48170.5$coverage/113.399860
+ATLER.1G48170.5$group <- "control"
+
+ATLER.1G48170.6 <- leroutput6[leroutput6$V1 == "chr1" & leroutput6$V2 >= 13300050 & leroutput6$V3 <= 13303000,]
+colnames(ATLER.1G48170.6) <- c("chromosome", "start", "end", "coverage")
+ATLER.1G48170.6$end <- ATLER.1G48170.6$end - 13300050
+ATLER.1G48170.6$start <- ATLER.1G48170.6$start - 13300050
+ATLER.1G48170.6$acc <- "Ler-1"
+ATLER.1G48170.6$coverage.nor <- ATLER.1G48170.6$coverage/74.428607
+ATLER.1G48170.6$group <- "control"
+
+ATLER.1G48170.7 <- leroutput7[leroutput7$V1 == "chr1" & leroutput7$V2 >= 13300050 & leroutput7$V3 <= 13303000,]
+colnames(ATLER.1G48170.7) <- c("chromosome", "start", "end", "coverage")
+ATLER.1G48170.7$end <- ATLER.1G48170.7$end - 13300050
+ATLER.1G48170.7$start <- ATLER.1G48170.7$start - 13300050
+ATLER.1G48170.7$acc <- "Ler-1"
+ATLER.1G48170.7$coverage.nor <- ATLER.1G48170.7$coverage/54.120237
+ATLER.1G48170.7$group <- "control"
+
+ATLER.1G48170.8 <- leroutput8[leroutput8$V1 == "chr1" & leroutput8$V2 >= 13300050 & leroutput8$V3 <= 13303000,]
+colnames(ATLER.1G48170.8) <- c("chromosome", "start", "end", "coverage")
+ATLER.1G48170.8$end <- ATLER.1G48170.8$end - 13300050
+ATLER.1G48170.8$start <- ATLER.1G48170.8$start - 13300050
+ATLER.1G48170.8$acc <- "Ler-1"
+ATLER.1G48170.8$coverage.nor <- ATLER.1G48170.8$coverage/60.745581
+ATLER.1G48170.8$group <- "control"
+
+# Combine the data for the heat and control samples
+ler_heat_combined <- rbind(ATLER.1G48170.1, ATLER.1G48170.2, ATLER.1G48170.3, ATLER.1G48170.4)
+ler_control_combined <- rbind(ATLER.1G48170.5, ATLER.1G48170.6, ATLER.1G48170.7, ATLER.1G48170.8)
+
+# Average the normalized coverage for each position
+ler_heat_avg <- ler_heat_combined %>%
+  group_by(start) %>%
+  summarize(coverage_avg = mean(coverage.nor))
+
+ler_control_avg <- ler_control_combined %>%
+  group_by(start) %>%
+  summarize(coverage_avg = mean(coverage.nor))
+```
+
+```{r}
+#col atlas
+coloutput1 <- read.delim("/media/central/ONSENmRNA/bamfiles/col/star_Col_heat_1.bed", header=FALSE)
+coloutput2 <- read.delim("/media/central/ONSENmRNA/bamfiles/col/star_Col_heat_2.bed", header=FALSE)
+coloutput3 <- read.delim("/media/central/ONSENmRNA/bamfiles/col/star_Col_heat_3.bed", header=FALSE)
+coloutput4 <- read.delim("/media/central/ONSENmRNA/bamfiles/col/star_Col_heat_4.bed", header=FALSE)
+coloutput5 <- read.delim("/media/central/ONSENmRNA/bamfiles/col/star_Col_con_1.bed", header=FALSE)
+coloutput6 <- read.delim("/media/central/ONSENmRNA/bamfiles/col/star_Col_con_2.bed", header=FALSE)
+coloutput7 <- read.delim("/media/central/ONSENmRNA/bamfiles/col/star_Col_con_3.bed", header=FALSE)
+coloutput8 <- read.delim("/media/central/ONSENmRNA/bamfiles/col/star_Col_con_4.bed", header=FALSE)
+
+AT1G125 <- coloutput1[coloutput1$V1 == "chr1" & coloutput1$V2 >= 3779664 & output$V3 <= 3786821,]
+colnames(AT1G125) <- c("chromosome", "start", "end", "coverage")
+
+AT1G35730.1 <- coloutput1[coloutput1$V1 == "chr1" & coloutput1$V2 >= 13227170 & coloutput1$V3 <= 13229931,]
+colnames(AT1G35730.1) <- c("chromosome", "start", "end", "coverage")
+AT1G35730.1$end <- AT1G35730.1$end - 13227170
+AT1G35730.1$start <- AT1G35730.1$start - 13227170
+AT1G35730.1$acc <- "Col-0"
+AT1G35730.1$coverage.nor <- AT1G35730.1$coverage/60.983103
+AT1G35730.1$group <- "heat"
+
+AT1G35730.2 <- coloutput2[coloutput2$V1 == "chr1" & coloutput2$V2 >= 13227170 & coloutput2$V3 <= 13229931,]
+colnames(AT1G35730.2) <- c("chromosome", "start", "end", "coverage")
+AT1G35730.2$end <- AT1G35730.2$end - 13227170
+AT1G35730.2$start <- AT1G35730.2$start - 13227170
+AT1G35730.2$acc <- "Col-0"
+AT1G35730.2$coverage.nor <- AT1G35730.2$coverage/64.560871
+AT1G35730.2$group <- "heat"
+
+AT1G35730.3 <- coloutput3[coloutput3$V1 == "chr1" & coloutput3$V2 >= 13227170 & coloutput3$V3 <= 13229931,]
+colnames(AT1G35730.3) <- c("chromosome", "start", "end", "coverage")
+AT1G35730.3$end <- AT1G35730.3$end - 13227170
+AT1G35730.3$start <- AT1G35730.3$start - 13227170
+AT1G35730.3$acc <- "Col-0"
+AT1G35730.3$coverage.nor <- AT1G35730.3$coverage/65.225640
+AT1G35730.3$group <- "heat"
+
+AT1G35730.4 <- coloutput4[coloutput4$V1 == "chr1" & coloutput4$V2 >= 13227170 & coloutput4$V3 <= 13229931,]
+colnames(AT1G35730.4) <- c("chromosome", "start", "end", "coverage")
+AT1G35730.4$end <- AT1G35730.4$end - 13227170
+AT1G35730.4$start <- AT1G35730.4$start - 13227170
+AT1G35730.4$acc <- "Col-0"
+AT1G35730.4$coverage.nor <- AT1G35730.4$coverage/52.789085
+AT1G35730.4$group <- "heat"
+
+AT1G35730.5 <- coloutput5[coloutput5$V1 == "chr1" & coloutput5$V2 >= 13227170 & coloutput5$V3 <= 13229931,]
+colnames(AT1G35730.5) <- c("chromosome", "start", "end", "coverage")
+AT1G35730.5$end <- AT1G35730.5$end - 13227170
+AT1G35730.5$start <- AT1G35730.5$start - 13227170
+AT1G35730.5$acc <- "Col-0"
+AT1G35730.5$coverage.nor <- AT1G35730.5$coverage/55.264296
+AT1G35730.5$group <- "control"
+
+AT1G35730.6 <- coloutput6[coloutput6$V1 == "chr1" & coloutput6$V2 >= 13227170 & coloutput6$V3 <= 13229931,]
+colnames(AT1G35730.6) <- c("chromosome", "start", "end", "coverage")
+AT1G35730.6$end <- AT1G35730.6$end - 13227170
+AT1G35730.6$start <- AT1G35730.6$start - 13227170
+AT1G35730.6$acc <- "Col-0"
+AT1G35730.6$coverage.nor <- AT1G35730.6$coverage/69.628896
+AT1G35730.6$group <- "control"
+
+AT1G35730.7 <- coloutput7[coloutput7$V1 == "chr1" & coloutput7$V2 >= 13227170 & coloutput7$V3 <= 13229931,]
+colnames(AT1G35730.7) <- c("chromosome", "start", "end", "coverage")
+AT1G35730.7$end <- AT1G35730.7$end - 13227170
+AT1G35730.7$start <- AT1G35730.7$start - 13227170
+AT1G35730.7$acc <- "Col-0"
+AT1G35730.7$coverage.nor <- AT1G35730.7$coverage/70.618697
+AT1G35730.7$group <- "control"
+
+AT1G35730.8 <- coloutput8[coloutput8$V1 == "chr1" & coloutput8$V2 >= 13227170 & coloutput8$V3 <= 13229931,]
+colnames(AT1G35730.8) <- c("chromosome", "start", "end", "coverage")
+AT1G35730.8$end <- AT1G35730.8$end - 13227170
+AT1G35730.8$start <- AT1G35730.8$start - 13227170
+AT1G35730.8$acc <- "Col-0"
+AT1G35730.8$coverage.nor <- AT1G35730.8$coverage/68.610557
+AT1G35730.8$group <- "control"
+
+# Combine the data for the heat and control samples
+col_heat_combined <- rbind(AT1G35730.1, AT1G35730.2, AT1G35730.3, AT1G35730.4)
+col_control_combined <- rbind(AT1G35730.5, AT1G35730.6, AT1G35730.7, AT1G35730.8)
+
+# Average the normalized coverage for each position
+col_heat_avg <- col_heat_combined %>%
+  group_by(start) %>%
+  summarize(coverage_avg = mean(coverage.nor))
+
+col_control_avg <- col_control_combined %>%
+  group_by(start) %>%
+  summarize(coverage_avg = mean(coverage.nor))
+
+# Define the window size
+k <- 10  # Example window size
+
+# Apply rolling mean
+ler_heat_avg$smoothed_coverage_avg <- rollmean(ler_heat_avg$coverage_avg, k, fill = NA)
+ler_control_avg$smoothed_coverage_avg <- rollmean(ler_control_avg$coverage_avg, k, fill = NA)
+
+col_heat_avg$smoothed_coverage_avg <- rollmean(col_heat_avg$coverage_avg, k, fill = NA)
+col_control_avg$smoothed_coverage_avg <- rollmean(col_control_avg$coverage_avg, k, fill = NA)
+
+cvi_heat_avg$smoothed_coverage_avg <- rollmean(cvi_heat_avg$coverage_avg, k, fill = NA)
+cvi_control_avg$smoothed_coverage_avg <- rollmean(cvi_control_avg$coverage_avg, k, fill = NA)
+
+
+tiff("expressionofampu9.tiff", units="in", width=8, height=8, res=600)
+ggplot() +
+  geom_line(data = ler_heat_avg, aes(x = -start, y = smoothed_coverage_avg), color = "#e3d950", size = 0.4) + 
+  geom_line(data = ler_control_avg, aes(x = -start, y = smoothed_coverage_avg), color = "#e3d950", linetype="dashed", size = 0.4) +   
+  geom_line(data = col_heat_avg, aes(x = -start, y = smoothed_coverage_avg), color = "#a6d7df", size = 0.4) + 
+  geom_line(data = col_control_avg, aes(x = -start, y = smoothed_coverage_avg), color = "#a6d7df", linetype="dashed", size = 0.4) +  
+  geom_line(data = cvi_heat_avg, aes(x = -start, y = smoothed_coverage_avg), color = "#ab3946", size = 0.4) + 
+  # geom_line(data = cvi_control_avg, aes(x = -start, y = smoothed_coverage_avg), color = "#ab3946", linetype="dashed", size = 0.3) +  
+  xlab("Position") +
+  ylab("Normalized Coverage") +
+  theme_classic() +
+  theme(
+    axis.text.x = element_text(size = 14),  # Increase x-axis tick labels font size
+    axis.text.y = element_text(size = 14)   # Increase y-axis tick labels font size
+  )
+dev.off()
+
+
+```
+
+
+
+
+```{r}
+tiff("AT1G125shortcov.tiff", units="in", width=8, height=2, res=600)
+ggplot(data = AT1G125, aes(x = start, y = coverage)) +
+  geom_line() +
+  geom_ribbon(aes(ymin = 0, ymax = coverage), alpha = 0.5, fill = "#0006b1") +
+  xlab("") +
+  ylab("") +
+  ggtitle("") +
+  scale_x_continuous(breaks = seq(3780000, 3787000, by = 1000)) +
+  theme_classic()
+dev.off()
+
+tiff("APMU9shortcov.tiff", units="in", width=5, height=5, res=600)
+ggplot() +
+  geom_line(data = ATCVI.1G48270, aes(x = -start, y = coverage), color = "#ab3946", linewidth = 0.8) + 
+  geom_line(data = ATLER.1G48170, aes(x = -start, y = coverage), color = "#e3d950", linewidth = 0.8) + 
+  geom_line(data = AT1G35730, aes(x = -start, y = coverage), color = "#a6d7df", linewidth = 0.8) +   
+  xlab("") +
+  ylab("") +
+  theme_classic()
+dev.off()
+
+tiff("Cvi0.Copia35.15.shortcov.tiff", units="in", width=8, height=2, res=600)
+ggplot(data = Cvi0.Copia35.15, aes(x = start, y = coverage)) +
+  geom_line() +
+  geom_ribbon(aes(ymin = 0, ymax = coverage), alpha = 0.5, fill = "#0006b1") +
+  xlab("") +
+  ylab("") +
+  ggtitle("") +
+  scale_x_reverse(breaks = seq(11313000, 11326000, by = 1000)) +
+  theme_classic()
+dev.off()
+
+for (i in 1:length(cd_names)){
+    x <- read.delim(list_csv_files_cd[i], comment.char="#",stringsAsFactors = FALSE)
+    colnames(x)[6] <- 'Length'
+    colnames(x)[7] <- 'counts'
+    x1 <- x[,c(1,6,7)]
+    assign(cd_names[i],x1)
+}
+
+Col1full <- rbind(Col_con_1.gene,Col_con_1.pseudogene,Col_con_1.transposable_element_gene,Col_con_1.flanks)
+Col_con_1.onsen$nor.counts <- (1000*(Col_con_1.onsen$counts/Col_con_1.onsen$Length))/52.789085
+Col_con_1.onsen$sample <- "Col1"
+
+Col2full <- rbind(Col_con_2.gene,Col_con_2.pseudogene,Col_con_2.transposable_element_gene,Col_con_2.flanks)
+Col_con_2.onsen$nor.counts <- (1000*(Col_con_2.onsen$counts/Col_con_2.onsen$Length))/55.264296
+Col_con_2.onsen$sample <- "Col2"
+
+Col3full <- rbind(Col_con_3.gene,Col_con_3.pseudogene,Col_con_3.transposable_element_gene,Col_con_3.flanks)
+Col_con_3.onsen$nor.counts <- (1000*(Col_con_3.onsen$counts/Col_con_3.onsen$Length))/70.618697
+Col_con_3.onsen$sample <- "Col3"
+
+Col4full <- rbind(Col_con_4.gene,Col_con_4.pseudogene,Col_con_4.transposable_element_gene,Col_con_4.flanks)
+Col_con_4.onsen$nor.counts <- (1000*(Col_con_4.onsen$counts/Col_con_4.onsen$Length))/68.610557
+Col_con_4.onsen$sample <- "Col4"
+
+ColHeat1full <- rbind(Col_heat_1.gene,Col_heat_1.pseudogene,Col_heat_1.transposable_element_gene,Col_heat_1.flanks)
+Col_heat_1.onsen$nor.counts <- (1000*(Col_heat_1.onsen$counts/Col_heat_1.onsen$Length))/60.983103
+Col_heat_1.onsen$sample <- "Heat1"
+
+ColHeat2full <- rbind(Col_heat_2.gene,Col_heat_2.pseudogene,Col_heat_2.transposable_element_gene,Col_heat_2.flanks)
+Col_heat_2.onsen$nor.counts <- (1000*(Col_heat_2.onsen$counts/Col_heat_2.onsen$Length))/64.560871
+Col_heat_2.onsen$sample <- "Heat2"
+
+ColHeat3full <- rbind(Col_heat_3.gene,Col_heat_3.pseudogene,Col_heat_3.transposable_element_gene,Col_heat_3.flanks)
+Col_heat_3.onsen$nor.counts <- (1000*(Col_heat_3.onsen$counts/Col_heat_3.onsen$Length))/65.225640
+Col_heat_3.onsen$sample <- "Heat3"
+
+ColHeat4full <- rbind(Col_heat_4.gene,Col_heat_4.pseudogene,Col_heat_4.transposable_element_gene,Col_heat_4.flanks)
+Col_heat_4.onsen$nor.counts <- (1000*(Col_heat_4.onsen$counts/Col_heat_4.onsen$Length))/69.628896
+Col_heat_4.onsen$sample <- "Heat4"
+
+
+full.length.col <- Col_heat_1.onsen$Geneid[Col_heat_1.onsen$Length > 4000]
+short.fragments.col <- Col_heat_1.onsen$Geneid[Col_heat_1.onsen$Length < 4000]
+
+conset <- rbind(Col_con_1.onsen,Col_con_2.onsen,Col_con_3.onsen,Col_con_4.onsen)
+heatset <- rbind(Col_heat_1.onsen,Col_heat_2.onsen,Col_heat_3.onsen,Col_heat_4.onsen)
+fullset <- rbind(conset,heatset)
+
+heatset$type <- heatset$Geneid %in% full.length.col
+heatset$geneidmu <- replace(heatset$Geneid, !(heatset$Geneid %in% full.length.col), "others")
+
+heatset$geneidmu <- replace(heatset$geneidmu, heatset$geneidmu == "AT5TE15240", "AT5G13205")
+heatset$geneidmu <- replace(heatset$geneidmu, heatset$geneidmu == "AT3TE92525", "AT3G61330")
+heatset$geneidmu <- replace(heatset$geneidmu, heatset$geneidmu == "AT1TE71045", "AT1G58140")
+heatset$geneidmu <- replace(heatset$geneidmu, heatset$geneidmu == "AT3TE54550", "AT3G32415")
+heatset$geneidmu <- replace(heatset$geneidmu, heatset$geneidmu == "AT3TE89830", "AT3G59720")
+heatset$geneidmu <- replace(heatset$geneidmu, heatset$geneidmu == "AT1TE24850", "AT1G21945")
+heatset$geneidmu <- replace(heatset$geneidmu, heatset$geneidmu == "AT1TE59755", "AT1G48710")
+heatset$geneidmu <- replace(heatset$geneidmu, heatset$geneidmu == "AT1TE12295", "AT1G11265")
+heatsetcol <- heatset
+heatsetcol$geneidmu <- sub("others", "Col-0-ONSEN-others", heatsetcol$geneidmu)
+
+heatsetcol.frag <- heatsetcol[!(heatsetcol$Geneid %in% full.length.col),]
+heatsetcol.frag <- heatsetcol.frag[heatsetcol.frag$nor.counts > 0.5,]
+heatsetcol.frag$Geneid <- sapply(strsplit(heatsetcol.frag$Geneid, "-"), function(x) x[[1]])
+heatsetcol.frag <- heatsetcol.frag %>%
+  group_by(Geneid) %>%
+  filter(n() == 4)
+
+rownames(heatsetcol.frag) <- NULL
+
+#Remove AT3TE32520 because it is part of a full length element TAIR10 is wrong
+heatsetcol.frag <- heatsetcol.frag[(heatsetcol.frag$Geneid != "AT3TE92520"),]
+heatsetcol.frag <- heatsetcol.frag[(heatsetcol.frag$Geneid != "AT3TE59075"),]
+
+new_order<- c(reorder(heatsetcol.frag$Geneid,heatsetcol.frag$nor.counts))
+# 
+custom_colors_box <- c("#a6d7df","#a6d7df","#a6d7df","#a6d7df","#a6d7df","#a6d7df","#a6d7df",
+                       "#a6d7df","#a6d7df","#a6d7df","#a6d7df","#a6d7df","#a6d7df","#a6d7df")
+
+tiff("colonsenfragshortexp.tiff", units="in", width=5, height=5, res=600)
+ggplot(heatsetcol.frag, aes(x=new_order, y=nor.counts, fill = new_order)) +
+  labs(x="", y="") + 
+  stat_boxplot(geom = "errorbar") +
+  geom_boxplot(outlier.size = 1) + 
+  theme_classic() +
+  theme(axis.text.x = element_text(face="plain", color="black", vjust=0.6,
+                           size=6, angle=90),
+        axis.title.y = element_text(face="plain", color="black", vjust=0.6,
+                           size=6)) +
+    guides(fill = FALSE) +
+  scale_fill_manual(values = custom_colors_box) +
+  ylim(c(0,10))
+dev.off()
+```
+
+```{r}
+geneCounts <- data.frame(Col1full[,3], 
+                         Col2full[,3], 
+                         Col3full[,3],
+                         Col4full[,3],
+                         ColHeat1full[,3],
+                         ColHeat2full[,3],
+                         ColHeat3full[,3],
+                         ColHeat4full[,3],
+                         stringsAsFactors=FALSE)
+
+rownames(geneCounts) <- ColHeat1full$Geneid
+colnames(geneCounts) <- c("control1", "control2", "control3","control4", "heat1", "heat2", "heat3","heat4")
+
+sample_info <- DataFrame(condition = c("control", "control", "control", "control","heat", "heat", "heat","heat"), 
+                         row.names = names(geneCounts[,1:8]))
+
+DESeq.ds <- DESeqDataSetFromMatrix(countData = geneCounts,
+                                   colData = sample_info,
+                                   design = ~ condition)
+
+# keep_genes <- rowSums(counts(DESeq.ds)) > 0
+# DESeq.ds <- DESeq.ds[ keep_genes, ]
+
+DESeq.rlog <- rlog(DESeq.ds, blind = TRUE)
+
+dds <- DESeq(DESeq.ds)
+res <- results(dds)
+
+gexpression <- as.data.frame(res)
+
+genevec5 <- c("AT1G11260","AT1G21940","AT1G48700", "AT1G58150", "AT1G35740", "AT1G41840", "AT3G32410", "AT3G59710", "AT3G61340","AT3G30846","AT5G13190")
+
+# genevec5withsolo <- c("AT5G13200","AT3G61320","AT1G58150", "AT3G32410", "AT3G59710", "AT1G21940", "AT1G48700", "AT1G11260", "AT1G10270", "AT1G45976","AT1G67260",
+#               "AT2G06870","AT2G15000","AT2G24840","AT2G33509","AT3G21420","AT3G22040","AT1G35740","AT1G41840","AT3G30846")
+
+genevec3 <- c("AT1G11280","AT1G21950","AT1G48730", "AT1G58130", "AT1G35730", "AT1G41830", "AT3G32425", "AT3G59740","AT3G61310","AT3G30842","AT5G13210")
+
+# genevec3withsolo <- c("AT5G13210","AT3G61340","AT1G58130", "AT3G32425", "AT3G59730", "AT1G21950", "AT1G48720", "AT1G11280","AT1G10240","AT1G46048","AT1G67265",
+#               "AT2G06880","AT2G15010","AT2G24850","AT2G33500","AT3G21410","AT3G22030","AT1G35730","AT1G41830","AT3G30842")
+
+genevec5full <- gexpression[rownames(gexpression) %in% genevec5,]
+genevec3full <- gexpression[rownames(gexpression) %in% genevec3,]
+genevec5full$core <- "fill"
+genevec5full$side <- "upstream"
+genevec5full[which(rownames(genevec5full) == "AT1G11260"),7] <- "AT1G11265"
+genevec5full[which(rownames(genevec5full) == "AT1G21940"),7] <- "AT1G21945"
+genevec5full[which(rownames(genevec5full) == "AT1G48700"),7] <- "AT1G48710"
+genevec5full[which(rownames(genevec5full) == "AT1G58150"),7] <- "AT1G58140"
+genevec5full[which(rownames(genevec5full) == "AT1G35740"),7] <- "AT1TE43225"
+genevec5full[which(rownames(genevec5full) == "AT1G41840"),7] <- "AT1TE51360"
+genevec5full[which(rownames(genevec5full) == "AT3G32410"),7] <- "AT3G32415"
+genevec5full[which(rownames(genevec5full) == "AT3G59710"),7] <- "AT3G59720"
+# genevec5full[which(rownames(genevec5full) == "AT1G10270"),7] <- "small"
+# genevec5full[which(rownames(genevec5full) == "AT1G45976"),7] <- "small"
+# genevec5full[which(rownames(genevec5full) == "AT1G67260"),7] <- "small"
+# genevec5full[which(rownames(genevec5full) == "AT2G06870"),7] <- "small"
+# genevec5full[which(rownames(genevec5full) == "AT2G15000"),7] <- "small"
+# genevec5full[which(rownames(genevec5full) == "AT2G24840"),7] <- "small"
+# genevec5full[which(rownames(genevec5full) == "AT2G33509"),7] <- "small"
+# genevec5full[which(rownames(genevec5full) == "AT3G21420"),7] <- "small"
+# genevec5full[which(rownames(genevec5full) == "AT3G22040"),7] <- "small"
+genevec5full[which(rownames(genevec5full) == "AT3G61340"),7] <- "AT3G61330"
+genevec5full[which(rownames(genevec5full) == "AT3G30846"),7] <- "AT3TE51895"
+genevec5full[which(rownames(genevec5full) == "AT5G13190"),7] <- "AT5G13205"
+
+genevec3full$core <- "fill"
+genevec3full$side <- "downstream"
+genevec3full[which(rownames(genevec3full) == "AT1G11280"),7] <- "AT1G11265"
+genevec3full[which(rownames(genevec3full) == "AT1G21950"),7] <- "AT1G21945"
+genevec3full[which(rownames(genevec3full) == "AT1G48730"),7] <- "AT1G48710"
+genevec3full[which(rownames(genevec3full) == "AT1G58130"),7] <- "AT1G58140"
+genevec3full[which(rownames(genevec3full) == "AT1G35730"),7] <- "AT1TE43225"
+genevec3full[which(rownames(genevec3full) == "AT1G41830"),7] <- "AT1TE51360"
+genevec3full[which(rownames(genevec3full) == "AT3G32425"),7] <- "AT3G32415"
+genevec3full[which(rownames(genevec3full) == "AT3G59740"),7] <- "AT3G59720"
+# genevec3full[which(rownames(genevec3full) == "AT1G10240"),7] <- "small"
+# genevec3full[which(rownames(genevec3full) == "AT1G46048"),7] <- "small"
+# genevec3full[which(rownames(genevec3full) == "AT1G67265"),7] <- "small"
+# genevec3full[which(rownames(genevec3full) == "AT2G06880"),7] <- "small"
+# genevec3full[which(rownames(genevec3full) == "AT2G15010"),7] <- "small"
+# genevec3full[which(rownames(genevec3full) == "AT2G24850"),7] <- "small"
+# genevec3full[which(rownames(genevec3full) == "AT2G33500"),7] <- "small"
+# genevec3full[which(rownames(genevec3full) == "AT3G21410"),7] <- "small"
+# genevec3full[which(rownames(genevec3full) == "AT3G22030"),7] <- "small"
+genevec3full[which(rownames(genevec3full) == "AT3G61310"),7] <- "AT3G61330"
+genevec3full[which(rownames(genevec3full) == "AT3G30842"),7] <- "AT3TE51895"
+genevec3full[which(rownames(genevec3full) == "AT5G13210"),7] <- "AT5G13205"
+
+genexp <- rbind(genevec5full,genevec3full)
+
+genexp <- na.omit(genexp)
+genexp$padj[genexp$padj == 0] <- 1e-10
+
+genexpcol <- genexp
+
+colregulated <- rownames(subset(genexpcol, core != "small" & log2FoldChange > 2 & padj < 0.0001 & baseMean > 100))
+```
+
+```{r}
+ColHeat1full$nor.counts <- (1000*(ColHeat1full$counts/ColHeat1full$Length))/60.983103
+ColHeat1full$sample <- "col1"
+ColHeat2full$nor.counts <- (1000*(ColHeat2full$counts/ColHeat2full$Length))/64.560871
+ColHeat2full$sample <- "col2"
+ColHeat3full$nor.counts <- (1000*(ColHeat3full$counts/ColHeat3full$Length))/65.225640
+ColHeat3full$sample <- "col3"
+ColHeat4full$nor.counts <- (1000*(ColHeat4full$counts/ColHeat4full$Length))/69.628896
+ColHeat4full$sample <- "col4"
+
+heatsetcolflanks <- rbind(ColHeat1full,ColHeat2full,ColHeat3full,ColHeat4full)
+
+# Apply partial matching using grepl and rowSums
+partial_matches <- rowSums(sapply(colregulated, function(p) grepl(p, heatsetcolflanks$Geneid))) > 0
+
+# Filter the dataframe
+heatsetcolflanksreg <- heatsetcolflanks[partial_matches, ]
+rownames(heatsetcolflanksreg) <- NULL
+
+unique_values <- unique(heatsetcolflanksreg$Geneid)
+unique_values <- data.frame(unique_values)
+unique_values$dir <- c("dir5","dir3","dir3","dir5","dir3","dir5","dir3","dir3",
+                       "dir5","dir3","dir3","dir5","dir3","dir3","dir5","dir3")
+unique_values$TE <- c("ONSEN","ONSEN","Copia-35","ONSEN","ONSEN","ONSEN","ONSEN","ONSEN",
+                       "ONSEN","ONSEN","ONSEN",
+                       "ONSEN","ONSEN","ONSEN","ONSEN","ONSEN")
+colnames(unique_values)[1] <- "Geneid"
+
+heatsetcolflanksreg <- heatsetcolflanksreg %>%
+  mutate(cat = ifelse(grepl("to", Geneid), "flanks", "gene"))
+
+heatsetcolflanksreg <- left_join(heatsetcolflanksreg, unique_values, by = "Geneid")
+
+# Calculate the median values for each group
+medians <- heatsetcolflanksreg %>%
+  group_by(Geneid) %>%
+  summarise(median_value = median(nor.counts, na.rm = TRUE))
+
+heatsetcolflanksreg$Geneid <- factor(heatsetcolflanksreg$Geneid,
+                                     levels = medians$Geneid[order(medians$median_value)])
+
+ggplot(heatsetcolflanksreg, aes(x=Geneid, y=nor.counts)) +
+  labs(x="", y="") + 
+  stat_boxplot(geom = "errorbar") +
+  geom_boxplot(outlier.size = 1) + 
+  theme_classic() +
+  theme(axis.text.x = element_text(face="plain", color="black", vjust=0.6,
+                           size=6, angle=90),
+        axis.title.y = element_text(face="plain", color="black", vjust=0.6,
+                           size=6)) +
+    guides(fill = FALSE)
+
+
+```
+
+
+```{r}
+list_csv_files_cd <- list.files(path = "/media/central/ONSENmRNA/bamfiles/ler", pattern = "*.counts", full.names = T)
+cd_names <- list.files(path = "/media/central/ONSENmRNA/bamfiles/ler", pattern = "*.counts")
+cd_names <- sub("Aligned.sortedByCoord.out.unique.bam", "", cd_names)
+cd_names <- sub(".counts", "", cd_names)
+cd_names <- sub("star_", "", cd_names)
+
+for (i in 1:length(cd_names)){
+    x <- read.delim(list_csv_files_cd[i], comment.char="#",stringsAsFactors = FALSE)
+    colnames(x)[6] <- 'Length'
+    colnames(x)[7] <- 'counts'
+    x1 <- x[,c(1,6,7)]
+    assign(cd_names[i],x1)
+}
+
+Ler1full <- rbind(Ler_con_1.gene,Ler_con_1.onsen,Ler_con_1.flanks)
+Ler_con_1.onsen$nor.counts <- (1000*(Ler_con_1.onsen$counts/Ler_con_1.onsen$Length))/113.399860
+Ler_con_1.onsen$sample <- "Ler1"
+
+Ler2full <- rbind(Ler_con_2.gene,Ler_con_2.onsen,Ler_con_2.flanks)
+Ler_con_2.onsen$nor.counts <- (1000*(Ler_con_2.onsen$counts/Ler_con_2.onsen$Length))/74.428607
+Ler_con_2.onsen$sample <- "Ler2"
+
+Ler3full <- rbind(Ler_con_3.gene,Ler_con_3.onsen,Ler_con_3.flanks)
+Ler_con_3.onsen$nor.counts <- (1000*(Ler_con_3.onsen$counts/Ler_con_3.onsen$Length))/54.120237
+Ler_con_3.onsen$sample <- "Ler3"
+
+Ler4full <- rbind(Ler_con_4.gene,Ler_con_4.onsen,Ler_con_4.flanks)
+Ler_con_4.onsen$nor.counts <- (1000*(Ler_con_4.onsen$counts/Ler_con_4.onsen$Length))/60.745581
+Ler_con_4.onsen$sample <- "Ler4"
+
+LerHeat1full <- rbind(Ler_heat_1.gene,Ler_heat_1.onsen,Ler_heat_1.flanks)
+Ler_heat_1.onsen$nor.counts <- (1000*(Ler_heat_1.onsen$counts/Ler_heat_1.onsen$Length))/52.837600
+Ler_heat_1.onsen$sample <- "Heat1"
+
+LerHeat2full <- rbind(Ler_heat_2.gene,Ler_heat_2.onsen,Ler_heat_2.flanks)
+Ler_heat_2.onsen$nor.counts <- (1000*(Ler_heat_2.onsen$counts/Ler_heat_2.onsen$Length))/55.936898
+Ler_heat_2.onsen$sample <- "Heat2"
+
+LerHeat3full <- rbind(Ler_heat_3.gene,Ler_heat_3.onsen,Ler_heat_3.flanks)
+Ler_heat_3.onsen$nor.counts <- (1000*(Ler_heat_3.onsen$counts/Ler_heat_3.onsen$Length))/56.067985
+Ler_heat_3.onsen$sample <- "Heat3"
+
+LerHeat4full <- rbind(Ler_heat_4.gene,Ler_heat_4.onsen,Ler_heat_4.flanks)
+Ler_heat_4.onsen$nor.counts <- (1000*(Ler_heat_4.onsen$counts/Ler_heat_4.onsen$Length))/58.854190
+Ler_heat_4.onsen$sample <- "Heat4"
+
+full.length.ler <- Ler_heat_1.onsen$Geneid[Ler_heat_1.onsen$Length > 4000]
+short.fragments.ler <- Ler_heat_1.onsen$Geneid[Ler_heat_1.onsen$Length < 4000]
+
+conset <- rbind(Ler_con_1.onsen,Ler_con_2.onsen,Ler_con_3.onsen,Ler_con_4.onsen)
+heatset <- rbind(Ler_heat_1.onsen,Ler_heat_2.onsen,Ler_heat_3.onsen,Ler_heat_4.onsen)
+fullset <- rbind(conset,heatset)
+
+heatset$type <- heatset$Geneid %in% full.length.ler
+  
+heatset$geneidmu <- replace(heatset$Geneid, !(heatset$Geneid %in% full.length.ler), "others")
+heatset$geneidmu <- replace(heatset$geneidmu, heatset$geneidmu == "88294fd0-6fae-11eb-b486-cd2899e563c0", "Ler1-ONSEN-13")
+heatset$geneidmu <- replace(heatset$geneidmu, heatset$geneidmu == "88448a84-6fae-11eb-b486-cd2899e563c0", "Ler1-ONSEN-23")
+heatset$geneidmu <- replace(heatset$geneidmu, heatset$geneidmu == "884f62f6-6fae-11eb-b486-cd2899e563c0", "Ler1-ONSEN-30")
+heatset$geneidmu <- replace(heatset$geneidmu, heatset$geneidmu == "88506156-6fae-11eb-b486-cd2899e563c0", "Ler1-ONSEN-31")
+heatset$geneidmu <- replace(heatset$geneidmu, heatset$geneidmu == "88520952-6fae-11eb-b486-cd2899e563c0,Target 88522e1e-6fae-11eb-b486-cd2899e563c0", "Ler1-ONSEN-32")
+heatset$geneidmu <- replace(heatset$geneidmu, heatset$geneidmu == "8852beba-6fae-11eb-b486-cd2899e563c0", "Ler1-ONSEN-33")
+heatsetler <- heatset
+heatsetler$geneidmu <- sub("others", "Ler-1-ONSEN-others", heatsetler$geneidmu)
+
+heatsetler.frag <- heatsetler[!(heatsetler$Geneid %in% full.length.ler) & heatsetler$Length >= 440 & heatsetler$nor.counts > 0.5,]
+heatsetler.frag$Geneid <- sapply(strsplit(heatsetler.frag$Geneid, "-"), function(x) x[[1]])
+heatsetler.frag <- heatsetler.frag %>%
+  group_by(Geneid) %>%
+  filter(n() == 4)
+
+rownames(heatsetler.frag) <- NULL
+
+# 8844203a is an solo LTR
+# 884561c0 884584ca 88451a62 looks like a gene or a different TE
+# 8848c2de intronic antisense
+# 884292f6 real fragment
+# 884292f6 not ONSEN
+
+heatsetler.frag <- heatsetler.frag[(heatsetler.frag$Geneid != "884561c0"),]
+heatsetler.frag <- heatsetler.frag[(heatsetler.frag$Geneid != "884584ca"),]
+heatsetler.frag <- heatsetler.frag[(heatsetler.frag$Geneid != "88451a62"),]
+heatsetler.frag <- heatsetler.frag[(heatsetler.frag$Geneid != "8848c2de"),]
+heatsetler.frag <- heatsetler.frag[(heatsetler.frag$Geneid != "88328528"),]
+heatsetler.frag$Geneid <- gsub("8844203a", "Ler1-ONSEN-14", heatsetler.frag$Geneid)  
+heatsetler.frag$Geneid <- gsub("884292f6", "Ler1-ONSEN-15", heatsetler.frag$Geneid) 
+  
+new_order<- c(reorder(heatsetler.frag$Geneid,heatsetler.frag$nor.counts))
+# 
+custom_colors_box <- c("#e3d950","#e3d950","#e3d950","#e3d950","#e3d950","#e3d950","#e3d950",
+                       "#e3d950","#e3d950","#e3d950","#e3d950","#e3d950","#e3d950","#e3d950",
+                       "#e3d950","#e3d950","#e3d950","#e3d950","#e3d950","#e3d950","#e3d950",
+                       "#e3d950","#e3d950","#e3d950","#e3d950","#e3d950","#e3d950","#e3d950",
+                       "#e3d950","#e3d950","#e3d950","#e3d950","#e3d950","#e3d950","#e3d950",
+                       "#e3d950","#e3d950","#e3d950","#e3d950","#e3d950","#e3d950","#e3d950",
+                       "#e3d950","#e3d950","#e3d950")
+
+tiff("leronsenfragshortexp.tiff", units="in", width=5, height=5, res=600)
+ggplot(heatsetler.frag, aes(x=new_order, y=nor.counts, fill = new_order)) +
+  labs(x="", y="") + 
+  stat_boxplot(geom = "errorbar") +
+  geom_boxplot(outlier.size = 1) + 
+  theme_classic() +
+  theme(axis.text.x = element_text(face="plain", color="black", vjust=0.6,
+                           size=6, angle=90),
+        axis.title.y = element_text(face="plain", color="black", vjust=0.6,
+                           size=6)) +
+    guides(fill = FALSE) +
+  scale_fill_manual(values = custom_colors_box) +
+  ylim(c(0,30))
+dev.off()
+```
+
+```{r}
+geneCounts <- data.frame(Ler1full[,3], 
+                         Ler2full[,3], 
+                         Ler3full[,3],
+                         Ler4full[,3],
+                         LerHeat1full[,3],
+                         LerHeat2full[,3],
+                         LerHeat3full[,3],
+                         LerHeat4full[,3],
+                         stringsAsFactors=FALSE)
+
+rownames(geneCounts) <- LerHeat1full$Geneid
+colnames(geneCounts) <- c("control1", "control2", "control3","control4", "heat1", "heat2", "heat3","heat4")
+
+sample_info <- DataFrame(condition = c("control", "control", "control", "control","heat", "heat", "heat","heat"), row.names = names(geneCounts[,1:8]))
+
+DESeq.ds <- DESeqDataSetFromMatrix(countData = geneCounts,
+                                   colData = sample_info,
+                                   design = ~ condition)
+
+# keep_genes <- rowSums(counts(DESeq.ds)) > 0
+# DESeq.ds <- DESeq.ds[ keep_genes, ]
+
+DESeq.rlog <- rlog(DESeq.ds, blind = TRUE)
+
+dds <- DESeq(DESeq.ds)
+res <- results(dds)
+
+gexpression <- as.data.frame(res)
+subset_string <- "to"
+
+# Subset the dataframe using the string
+gexpression.flank.ler <- gexpression[grepl(subset_string, rownames(gexpression)),]
+gexpression.flank.ler <- gexpression.flank.ler[complete.cases(gexpression.flank.ler),]
+
+genevec5 <- c("ATLER-1G48200","ATLER-1G55590","ATLER-2G11740", "ATLER-3G49310", "ATLER-3G66950","ATLER-4G38620","ATLER-4G42610","ATLER-5G12470","ATLER-5G17700")
+
+genevec3 <- c("ATLER-1G48170","ATLER-1G55480","ATLER-2G11780", "ATLER-3G49220", "ATLER-3G66970","ATLER-4G38650","ATLER-4G42665","ATLER-5G12430","ATLER-5G17680")
+
+genevec5full <- gexpression[rownames(gexpression) %in% genevec5,]
+genevec3full <- gexpression[rownames(gexpression) %in% genevec3,]
+# gexpressionRest <- gexpression[!(rownames(gexpression) %in% genevec3 | rownames(gexpression) %in% genevec5),]
+genevec5full$side <- "upstream"
+genevec3full$side <- "downstream"
+
+genevec5full$core <- "fill"
+genevec5full$side <- "upstream"
+genevec5full[which(rownames(genevec5full) == "ATLER-1G48200"),8] <- "Ler1-Copia35-4"
+genevec5full[which(rownames(genevec5full) == "ATLER-1G55590"),8] <- "Ler1-Copia35-6"
+genevec5full[which(rownames(genevec5full) == "ATLER-2G11740"),8] <- "Ler1-ONSEN-13"
+genevec5full[which(rownames(genevec5full) == "ATLER-3G49310"),8] <- "Ler1-Copia35-10"
+genevec5full[which(rownames(genevec5full) == "ATLER-3G66950"),8] <- "Ler1-ONSEN-23"
+genevec5full[which(rownames(genevec5full) == "ATLER-4G38620"),8] <- "Ler1-ONSEN-30"
+genevec5full[which(rownames(genevec5full) == "ATLER-4G42610"),8] <- "Ler1-ONSEN-31"
+genevec5full[which(rownames(genevec5full) == "ATLER-5G12470"),8] <- "Ler1-ONSEN-32"
+genevec5full[which(rownames(genevec5full) == "ATLER-5G17700"),8] <- "Ler1-ONSEN-33"
+
+genevec3full$core <- "fill"
+
+genevec3full[which(rownames(genevec3full) == "ATLER-1G48170"),8] <- "Ler1-Copia35-4"
+genevec3full[which(rownames(genevec3full) == "ATLER-1G55480"),8] <- "Ler1-Copia35-6"
+genevec3full[which(rownames(genevec3full) == "ATLER-2G11780"),8] <- "Ler1-ONSEN-13"
+genevec3full[which(rownames(genevec3full) == "ATLER-3G49220"),8] <- "Ler1-Copia35-10"
+genevec3full[which(rownames(genevec3full) == "ATLER-3G66970"),8] <- "Ler1-ONSEN-23"
+genevec3full[which(rownames(genevec3full) == "ATLER-4G38650"),8] <- "Ler1-ONSEN-30"
+genevec3full[which(rownames(genevec3full) == "ATLER-4G42665"),8] <- "Ler1-ONSEN-31"
+genevec3full[which(rownames(genevec3full) == "ATLER-5G12430"),8] <- "Ler1-ONSEN-32"
+genevec3full[which(rownames(genevec3full) == "ATLER-5G17680"),8] <- "Ler1-ONSEN-33"
+
+genexp <- rbind(genevec5full,genevec3full)
+
+genexp <- na.omit(genexp)
+genexp$padj[genexp$padj == 0] <- 1e-10
+genexpler <- genexp
+
+lerregulated <- rownames(subset(genexpler, core != "small" & log2FoldChange > 2 & padj < 0.0001 & baseMean > 100))
+```
+
+
+```{r}
+LerHeat1full$nor.counts <- (1000*(LerHeat1full$counts/LerHeat1full$Length))/52.837600
+LerHeat1full$sample <- "ler1"
+LerHeat2full$nor.counts <- (1000*(LerHeat2full$counts/LerHeat2full$Length))/55.936898
+LerHeat2full$sample <- "ler2"
+LerHeat3full$nor.counts <- (1000*(LerHeat3full$counts/LerHeat3full$Length))/56.067985
+LerHeat3full$sample <- "ler3"
+LerHeat4full$nor.counts <- (1000*(LerHeat4full$counts/LerHeat4full$Length))/58.854190
+LerHeat4full$sample <- "ler4"
+
+heatsetlerflanks <- rbind(LerHeat1full,LerHeat2full,LerHeat3full,LerHeat4full)
+
+# Apply partial matching using grepl and rowSums
+partial_matches <- rowSums(sapply(lerregulated, function(p) grepl(p, heatsetlerflanks$Geneid))) > 0
+
+# Filter the dataframe
+heatsetlerflanksreg <- heatsetlerflanks[partial_matches, ]
+rownames(heatsetlerflanksreg) <- NULL
+
+unique_values <- unique(heatsetlerflanksreg$Geneid)
+unique_values <- data.frame(unique_values)
+unique_values$dir <- c("dir3","dir3","dir3","dir3")
+unique_values$TE <- c("Copia-35","ONSEN","Copia-35","ONSEN")
+colnames(unique_values)[1] <- "Geneid"
+
+heatsetlerflanksreg <- heatsetlerflanksreg %>%
+  mutate(cat = ifelse(grepl("to", Geneid), "flanks", "gene"))
+
+heatsetlerflanksreg <- left_join(heatsetlerflanksreg, unique_values, by = "Geneid")
+
+ggplot(heatsetlerflanksreg, aes(x=Geneid, y=nor.counts)) +
+  labs(x="", y="") + 
+  stat_boxplot(geom = "errorbar") +
+  geom_boxplot(outlier.size = 1) + 
+  theme_classic() +
+  theme(axis.text.x = element_text(face="plain", color="black", vjust=0.6,
+                           size=6, angle=90),
+        axis.title.y = element_text(face="plain", color="black", vjust=0.6,
+                           size=6)) +
+    guides(fill = FALSE)
+```
+
+
+
+```{r}
+list_csv_files_cd <- list.files(path = "/media/central/ONSENmRNA/bamfiles/cvi", pattern = "*.counts", full.names = T)
+cd_names <- list.files(path = "/media/central/ONSENmRNA/bamfiles/cvi", pattern = "*.counts")
+cd_names <- sub("Aligned.sortedByCoord.out.unique.bam", "", cd_names)
+cd_names <- sub(".counts", "", cd_names)
+cd_names <- sub("star_", "", cd_names)
+cd_names <- sub("_.copia35", ".copia35", cd_names)
+
+for (i in 1:length(cd_names)){
+    x <- read.delim(list_csv_files_cd[i], comment.char="#",stringsAsFactors = FALSE)
+    colnames(x)[6] <- 'Length'
+    colnames(x)[7] <- 'counts'
+    x1 <- x[,c(1,6,7)]
+    assign(cd_names[i],x1)
+}
+
+Cvi1full <- rbind(Cvi_con_1.gene,Cvi_con_1.onsen,Cvi_con_1.flanks)
+Cvi_con_1.onsen$nor.counts <- (1000*(Cvi_con_1.onsen$counts/Cvi_con_1.onsen$Length))/60.399928
+Cvi_con_1.onsen$sample <- "Cvi1"
+
+Cvi2full <- rbind(Cvi_con_2.gene,Cvi_con_2.onsen,Cvi_con_2.flanks)
+Cvi_con_2.onsen$nor.counts <- (1000*(Cvi_con_2.onsen$counts/Cvi_con_2.onsen$Length))/57.682605
+Cvi_con_2.onsen$sample <- "Cvi2"
+
+Cvi3full <- rbind(Cvi_con_3.gene,Cvi_con_3.onsen,Cvi_con_3.flanks)
+Cvi_con_3.onsen$nor.counts <- (1000*(Cvi_con_3.onsen$counts/Cvi_con_3.onsen$Length))/59.132900
+Cvi_con_3.onsen$sample <- "Cvi3"
+
+Cvi4full <- rbind(Cvi_con_4.gene,Cvi_con_4.onsen,Cvi_con_4.flanks)
+Cvi_con_4.onsen$nor.counts <- (1000*(Cvi_con_4.onsen$counts/Cvi_con_4.onsen$Length))/74.997206
+Cvi_con_4.onsen$sample <- "Cvi4"
+
+CviHeat1full <- rbind(Cvi_heat_1.gene,Cvi_heat_1.onsen,Cvi_heat_1.flanks)
+Cvi_heat_1.onsen$nor.counts <- (1000*(Cvi_heat_1.onsen$counts/Cvi_heat_1.onsen$Length))/62.607630
+Cvi_heat_1.onsen$sample <- "Heat1"
+
+CviHeat2full <- rbind(Cvi_heat_2.gene,Cvi_heat_2.onsen,Cvi_heat_2.flanks)
+Cvi_heat_2.onsen$nor.counts <- (1000*(Cvi_heat_2.onsen$counts/Cvi_heat_2.onsen$Length))/56.882981
+Cvi_heat_2.onsen$sample <- "Heat2"
+
+CviHeat3full <- rbind(Cvi_heat_3.gene,Cvi_heat_3.onsen,Cvi_heat_3.flanks)
+Cvi_heat_3.onsen$nor.counts <- (1000*(Cvi_heat_3.onsen$counts/Cvi_heat_3.onsen$Length))/61.222157
+Cvi_heat_3.onsen$sample <- "Heat3"
+
+CviHeat4full <- rbind(Cvi_heat_4.gene,Cvi_heat_4.onsen,Cvi_heat_4.flanks)
+Cvi_heat_4.onsen$nor.counts <- (1000*(Cvi_heat_4.onsen$counts/Cvi_heat_4.onsen$Length))/58.185995
+Cvi_heat_4.onsen$sample <- "Heat4"
+
+full.length.cvi <- Cvi_heat_1.onsen$Geneid[Cvi_heat_1.onsen$Length > 4000]
+short.fragments.cvi <- Cvi_heat_1.onsen$Geneid[Cvi_heat_1.onsen$Length < 4000]
+
+conset <- rbind(Cvi_con_1.onsen,Cvi_con_2.onsen,Cvi_con_3.onsen,Cvi_con_4.onsen)
+heatset <- rbind(Cvi_heat_1.onsen,Cvi_heat_2.onsen,Cvi_heat_3.onsen,Cvi_heat_4.onsen)
+fullset <- rbind(conset,heatset)
+
+heatset$type <- heatset$Geneid %in% full.length.cvi
+  
+heatset$geneidmu <- replace(heatset$Geneid, !(heatset$Geneid %in% full.length.cvi), "others")
+heatset$geneidmu <- replace(heatset$geneidmu, heatset$geneidmu == "439d209c-6fb0-11eb-b486-cd2899e563c0", "Cvi0-ONSEN-27")
+heatset$geneidmu <- replace(heatset$geneidmu, heatset$geneidmu == "43a2ff8a-6fb0-11eb-b486-cd2899e563c0,Target 43a323fc-6fb0-11eb-b486-cd2899e563c0", "Cvi0-ONSEN-32")
+heatset$geneidmu <- replace(heatset$geneidmu, heatset$geneidmu == "43b54226-6fb0-11eb-b486-cd2899e563c0", "Cvi0-ONSEN-49")
+
+heatsetcvi <- heatset
+heatsetcvi$geneidmu <- sub("others", "Cvi-0-ONSEN-others", heatsetcvi$geneidmu)
+heatsetcvi$group <- "cvi"
+
+heatsetcvi.frag <- heatsetcvi[!(heatsetcvi$Geneid %in% full.length.cvi) & heatsetcvi$Length >= 440 & heatsetcvi$nor.counts > 0.5,]
+heatsetcvi.frag$Geneid <- sapply(strsplit(heatsetcvi.frag$Geneid, "-"), function(x) x[[1]])
+heatsetcvi.frag <- heatsetcvi.frag %>%
+  group_by(Geneid) %>%
+  filter(n() == 4)
+
+rownames(heatsetcvi.frag) <- NULL
+
+# 43988852 no promoter evidence
+# 43ab45be id intronic
+# 43a4accc overlaps with a gene
+# 4390a4f2 is not ONSEN match better to VANDAL1
+# 43add180 no promoter evidence
+# 43ab942e intronic
+# 43a48738 not ONSEN
+# 43a9c0a4 long read invalidated 
+
+heatsetcvi.frag <- heatsetcvi.frag[(heatsetcvi.frag$Geneid != "43988852"),]
+heatsetcvi.frag <- heatsetcvi.frag[(heatsetcvi.frag$Geneid != "43ab45be"),]
+heatsetcvi.frag <- heatsetcvi.frag[(heatsetcvi.frag$Geneid != "43a4accc"),]
+heatsetcvi.frag <- heatsetcvi.frag[(heatsetcvi.frag$Geneid != "4390a4f2"),]
+heatsetcvi.frag <- heatsetcvi.frag[(heatsetcvi.frag$Geneid != "43add180"),]
+heatsetcvi.frag <- heatsetcvi.frag[(heatsetcvi.frag$Geneid != "43ab942e"),]
+heatsetcvi.frag <- heatsetcvi.frag[(heatsetcvi.frag$Geneid != "43a48738"),]
+heatsetcvi.frag <- heatsetcvi.frag[(heatsetcvi.frag$Geneid != "43a9c0a4"),]
+
+new_order<- c(reorder(heatsetcvi.frag$Geneid,heatsetcvi.frag$nor.counts))
+# 
+custom_colors_box <- c("#ab3946","#ab3946","#ab3946","#ab3946","#ab3946","#ab3946","#ab3946",
+                       "#ab3946","#ab3946","#ab3946","#ab3946","#ab3946","#ab3946","#ab3946",
+                       "#ab3946","#ab3946","#ab3946","#ab3946","#ab3946","#ab3946","#ab3946",
+                       "#ab3946","#ab3946","#ab3946","#ab3946","#ab3946","#ab3946","#ab3946",
+                       "#ab3946","#ab3946","#ab3946","#ab3946","#ab3946","#ab3946","#ab3946",
+                       "#ab3946","#ab3946","#ab3946","#ab3946","#ab3946","#ab3946","#ab3946")
+
+tiff("cvionsenfragshortexp.tiff", units="in", width=5, height=5, res=600)
+ggplot(heatsetcvi.frag, aes(x=new_order, y=nor.counts, fill = new_order)) +
+  labs(x="", y="") + 
+  stat_boxplot(geom = "errorbar") +
+  geom_boxplot(outlier.size = 1) + 
+  theme_classic() +
+  theme(axis.text.x = element_text(face="plain", color="black", vjust=0.6,
+                           size=6, angle=90),
+        axis.title.y = element_text(face="plain", color="black", vjust=0.6,
+                           size=6)) +
+    guides(fill = FALSE) +
+  scale_fill_manual(values = custom_colors_box) +
+  ylim(c(0,25))
+dev.off()
+
+
+allonsenfrag <- rbind(heatsetcol.frag,heatsetler.frag,heatsetcvi.frag)
+new_order<- c(reorder(heatsetcol.frag$Geneid,heatsetcol.frag$nor.counts),
+              reorder(heatsetler.frag$Geneid,heatsetler.frag$nor.counts),
+              reorder(heatsetcvi.frag$Geneid,heatsetcvi.frag$nor.counts))
+
+
+custom_colors_box <- c("#a6d7df","#a6d7df","#e3d950","#e3d950")
+
+
+tiff("allonsenfragshortexp.tiff", units="in", width=5, height=5, res=600)
+ggplot(allonsenfrag, aes(x=new_order, y=nor.counts, fill = new_order)) +
+  labs(x="", y="") + 
+  stat_boxplot(geom = "errorbar") +
+  geom_boxplot(outlier.size = 1) + 
+  theme_classic() +
+  theme(axis.text.x = element_text(face="plain", color="black", vjust=0.6,
+                           size=6, angle=90),
+        axis.title.y = element_text(face="plain", color="black", vjust=0.6,
+                           size=6)) +
+    guides(fill = FALSE) +
+  scale_fill_manual(values = custom_colors_box) +
+  ylim(c(0,25))
+dev.off()
+```
+
+
+
+```{r}
+geneCounts <- data.frame(Cvi1full[,3], 
+                         Cvi2full[,3], 
+                         Cvi3full[,3],
+                         Cvi4full[,3],
+                         CviHeat1full[,3],
+                         CviHeat2full[,3],
+                         CviHeat3full[,3],
+                         CviHeat4full[,3],
+                         stringsAsFactors=FALSE)
+
+rownames(geneCounts) <- CviHeat1full$Geneid
+colnames(geneCounts) <- c("control1", "control2", "control3","control4", "heat1", "heat2", "heat3","heat4")
+
+sample_info <- DataFrame(condition = c("control", "control", "control", "control","heat", "heat", "heat","heat"), 
+                         row.names = names(geneCounts[,1:8]))
+
+
+DESeq.ds <- DESeqDataSetFromMatrix(countData = geneCounts,
+                                   colData = sample_info,
+                                   design = ~ condition)
+
+# keep_genes <- rowSums(counts(DESeq.ds)) > 0
+# DESeq.ds <- DESeq.ds[ keep_genes, ]
+
+DESeq.rlog <- rlog(DESeq.ds, blind = TRUE)
+
+dds <- DESeq(DESeq.ds)
+res <- results(dds)
+
+gexpression <- as.data.frame(res)
+
+subset_string <- "to"
+
+# Subset the dataframe using the string
+gexpression.flank.cvi <- gexpression[grepl(subset_string, rownames(gexpression)),]
+gexpression.flank.cvi <- gexpression.flank.cvi[complete.cases(gexpression.flank.cvi),]
+
+genevec5 <- c("ATCVI-1G55810","ATCVI-3G20910","ATCVI-3G43650","ATCVI-3G49010","ATCVI-3G50820","ATCVI-4G40890")
+
+genevec3 <- c("ATCVI-1G55690","ATCVI-3G20890","ATCVI-3G43580","ATCVI-3G48960","ATCVI-3G50870","ATCVI-4G40910")
+
+genevec5full <- gexpression[rownames(gexpression) %in% genevec5,]
+genevec3full <- gexpression[rownames(gexpression) %in% genevec3,]
+
+genevec5full$side <- "upstream"
+genevec3full$side <- "downstream"
+
+genevec5full$core <- "fill"
+genevec5full$side <- "upstream"
+genevec5full[which(rownames(genevec5full) == "ATCVI-1G55810"),8] <- "Cvi0-Copia35-5"
+genevec5full[which(rownames(genevec5full) == "ATCVI-3G20910"),8] <- "Cvi0-ONSEN-27"
+genevec5full[which(rownames(genevec5full) == "ATCVI-3G43650"),8] <- "Cvi0-Copia35-15"
+genevec5full[which(rownames(genevec5full) == "ATCVI-3G49010"),8] <- "Cvi0-Copia35-16"
+genevec5full[which(rownames(genevec5full) == "ATCVI-3G50820"),8] <- "Cvi0-ONSEN-32"
+genevec5full[which(rownames(genevec5full) == "ATCVI-4G40890"),8] <- "Cvi0-ONSEN-49"
+
+genevec3full$core <- "fill"
+genevec3full[which(rownames(genevec3full) == "ATCVI-1G55690"),8] <- "Cvi0-Copia35-5"
+genevec3full[which(rownames(genevec3full) == "ATCVI-3G20890"),8] <- "Cvi0-ONSEN-27"
+genevec3full[which(rownames(genevec3full) == "ATCVI-3G43580"),8] <- "Cvi0-Copia35-15"
+genevec3full[which(rownames(genevec3full) == "ATCVI-3G48960"),8] <- "Cvi0-Copia35-16"
+genevec3full[which(rownames(genevec3full) == "ATCVI-3G50870"),8] <- "Cvi0-ONSEN-32"
+genevec3full[which(rownames(genevec3full) == "ATCVI-4G40910"),8] <- "Cvi0-ONSEN-49"
+
+genexp <- rbind(genevec5full,genevec3full)
+
+genexp <- na.omit(genexp)
+genexp$padj[genexp$padj == 0] <- 1e-10
+genexpcvi <- genexp
+cviregulated <- rownames(subset(genexpcvi, core != "small" & log2FoldChange > 2 & padj < 0.0001 & baseMean > 100))
+```
+
+
+```{r}
+CviHeat1full$nor.counts <- (1000*(CviHeat1full$counts/CviHeat1full$Length))/62.607630
+CviHeat1full$sample <- "Cvi1"
+CviHeat2full$nor.counts <- (1000*(CviHeat2full$counts/CviHeat2full$Length))/56.882981
+CviHeat2full$sample <- "Cvi1"
+CviHeat3full$nor.counts <- (1000*(CviHeat3full$counts/CviHeat3full$Length))/61.222157
+CviHeat3full$sample <- "Cvi3"
+CviHeat4full$nor.counts <- (1000*(CviHeat4full$counts/CviHeat4full$Length))/58.185995
+CviHeat4full$sample <- "Cvi4"
+
+heatsetcviflanks <- rbind(CviHeat1full,CviHeat2full,CviHeat3full,CviHeat4full)
+
+# Apply partial matching using grepl and rowSums
+partial_matches <- rowSums(sapply(cviregulated, function(p) grepl(p, heatsetcviflanks$Geneid))) > 0
+
+# Filter the dataframe
+heatsetcviflanksreg <- heatsetcviflanks[partial_matches, ]
+rownames(heatsetcviflanksreg) <- NULL
+
+unique_values <- unique(heatsetcviflanksreg$Geneid)
+unique_values <- data.frame(unique_values)
+unique_values$dir <- c("dir3","dir5","dir3","dir3","dir5","dir3",
+                       "dir3","dir5","dir3","dir3","dir5","dir3")
+unique_values$TE <- c("ONSEN","ONSEN","Copia-35","Copia-35","ONSEN","ONSEN",
+                      "ONSEN","ONSEN","Copia-35","Copia-35","ONSEN","ONSEN")
+colnames(unique_values)[1] <- "Geneid"
+
+heatsetcviflanksreg <- heatsetcviflanksreg %>%
+  mutate(cat = ifelse(grepl("to", Geneid), "flanks", "gene"))
+
+heatsetcviflanksreg <- left_join(heatsetcviflanksreg, unique_values, by = "Geneid")
+
+ggplot(heatsetcviflanksreg, aes(x=Geneid, y=nor.counts)) +
+  labs(x="", y="") + 
+  stat_boxplot(geom = "errorbar") +
+  geom_boxplot(outlier.size = 1) + 
+  theme_classic() +
+  theme(axis.text.x = element_text(face="plain", color="black", vjust=0.6,
+                           size=6, angle=90),
+        axis.title.y = element_text(face="plain", color="black", vjust=0.6,
+                           size=6)) +
+    guides(fill = FALSE)
+```
+
+
+```{r}
+library(stringr)
+heatsetflanksregall <- rbind(heatsetcolflanksreg,heatsetlerflanksreg,heatsetcviflanksreg)
+
+onsenthreetrues <- c(
+"AT1G48730",
+"AT1G58130",
+"ATLER-3G66970",
+"ATLER-5G12430",
+"ATCVI-3G20890",
+"ATCVI-3G50870",
+"ATCVI-4G40910")
+
+filteredthreeonsen_heatsetflanksregall <- heatsetflanksregall %>%
+  filter(sapply(Geneid, function(x) any(sapply(onsenthreetrues, grepl, x = x))))
+
+filteredthreeonsen_heatsetflanksregall$Geneid <- sub("AT1G48730toAT1G48710dir3ONSEN", "ONSEN 5 intergenic", filteredthreeonsen_heatsetflanksregall$Geneid)
+filteredthreeonsen_heatsetflanksregall$Geneid <- sub("AT1G58130toAT1G58140dir3ONSEN", "ONSEN 4 intergenic", filteredthreeonsen_heatsetflanksregall$Geneid)
+filteredthreeonsen_heatsetflanksregall$Geneid <- sub("ATLER-3G66970toLer1-ONSEN-23dir3", "Ler1-ONSEN-23 intergenic", filteredthreeonsen_heatsetflanksregall$Geneid)
+filteredthreeonsen_heatsetflanksregall$Geneid <- sub("ATCVI-3G20890toCvi0-ONSEN-27dir3", "Cvi0-ONSEN-27 intergenic", filteredthreeonsen_heatsetflanksregall$Geneid)
+filteredthreeonsen_heatsetflanksregall$Geneid <- sub("ATCVI-4G40910toCvi0-ONSEN-49dir3", "Cvi0-ONSEN-49 intergenic", filteredthreeonsen_heatsetflanksregall$Geneid)
+
+ggplot(filteredthreeonsen_heatsetflanksregall, aes(x=Geneid, y=nor.counts)) +
+  labs(x="", y="") + 
+  stat_boxplot(geom = "errorbar") +
+  geom_boxplot(outlier.size = 1) + 
+  theme_classic() +
+  theme(axis.text.x = element_text(face="plain", color="black", vjust=0.6,
+                                   size=6, angle=90),
+        axis.title.y = element_text(face="plain", color="black", vjust=0.6,
+                                   size=6)) +
+  guides(fill = FALSE)
+
+copiathreetrues <- c(
+"ATCVI-3G43580",
+"ATCVI-3G48960")
+
+filteredthreecopia_heatsetflanksregall <- heatsetflanksregall %>%
+  filter(sapply(Geneid, function(x) any(sapply(copiathreetrues, grepl, x = x))))
+
+filteredthreecopia_heatsetflanksregall$Geneid <- sub("ATCVI-3G43580toCvi0-Copia35-15dir3", "Cvi0-Copia35-15 intergenic", filteredthreecopia_heatsetflanksregall$Geneid)
+filteredthreecopia_heatsetflanksregall$Geneid <- sub("ATCVI-3G48960toCvi0-Copia35-16dir3", "Cvi0-Copia35-16 intergenic", filteredthreecopia_heatsetflanksregall$Geneid)
+
+
+filteredflanksregall <- rbind(filteredthreecopia_heatsetflanksregall,filteredthreeonsen_heatsetflanksregall)
+# filteredflanksregall$Geneid <- factor(filteredflanksregall$Geneid, 
+#                                       levels=c("AT1G48730", "AT1G48730 Flanking", 
+#                                                "AT1G58130", "AT1G58130 Flanking",
+#                                                "ATLER-3G66970", "ATLER-3G66970 Flanking",
+#                                                "ATCVI-4G40910", "ATCVI-4G40910 Flanking",
+#                                                "ATCVI-3G20890", "ATCVI-3G20890 Flanking",
+#                                                "ATCVI-3G43580", "ATCVI-3G43580 Flanking",
+#                                                "ATCVI-3G48960", "ATCVI-3G48960 Flanking"
+# ))
+
+filteredflanksregall$Geneid <- factor(filteredflanksregall$Geneid, 
+                                      levels=c("AT1G48730", "ONSEN 5 intergenic", 
+                                               "AT1G58130", "ONSEN 4 intergenic",
+                                               "ATLER-3G66970", "Ler1-ONSEN-23 intergenic",
+                                               "ATCVI-4G40910", "Cvi0-ONSEN-49 intergenic",
+                                               "ATCVI-3G20890", "Cvi0-ONSEN-27 intergenic",
+                                               "ATCVI-3G43580", "Cvi0-Copia35-15 intergenic",
+                                               "ATCVI-3G48960", "Cvi0-Copia35-16 intergenic"
+))
+
+
+tiff("allonsenfragshortexp.tiff", units="in", width=10, height=5, res=600)
+ggplot(filteredflanksregall, aes(x=Geneid, y=nor.counts)) +
+  labs(x="", y="") + 
+  stat_boxplot(geom = "errorbar", lwd=0.3) +
+  geom_boxplot(aes(fill=cat), outlier.size = 1, lwd=0.3) + # add fill aesthetic here
+  theme_classic() +
+  scale_fill_manual(values = c("gene" = "#cd34b5", "flanks" = "#fa8775")) +
+  theme(axis.text.x = element_text(face="plain", color="black", vjust=0.6,
+                                   size=8),
+        axis.title.y = element_text(face="plain", color="black", vjust=0.6,
+                                   size=8)) + 
+  coord_flip()
+dev.off()
+
+highlight <- c("AT1G48730","AT1G58130", "ATLER-3G66970", "ATCVI-4G40910", "ATCVI-3G20890", "ATCVI-3G43580", "ATCVI-3G48960")
+
+tiff("tegenesexp.tiff", units="in", width=3, height=3, res=1200)
+heatsetflanksregall.sub <- heatsetflanksregall[heatsetflanksregall$cat == "gene",]
+ggplot(heatsetflanksregall.sub, aes(x = Length, y = nor.counts)) + 
+  geom_point(aes(shape = factor(ifelse(dir == "dir3", "dir3", "dir5")), 
+                 fill = TE),
+             size=3) +
+  scale_shape_manual(values = c("dir3" = 21, "dir5" = 25)) +
+  guides(color = FALSE) +
+  labs(x = NULL, y = NULL) +
+  guides(fill = FALSE, shape = FALSE, color = FALSE, alpha = FALSE) +
+  theme_classic() +
+    theme(
+    axis.text = element_text(size = 8, color = "black")    # Set axis text color to black
+  )
+dev.off()
+
+
+
+highlight <- c("AT1G48730","AT1G58130", "ATLER-3G66970", "ATCVI-4G40910", "ATCVI-3G20890", 
+               "ATCVI-3G43580", "ATCVI-3G48960")
+
+heatsetflanksregall.sub <- heatsetflanksregall[heatsetflanksregall$cat == "gene",]
+
+ggplot(heatsetflanksregall.sub, aes(x = Length, y = nor.counts)) + 
+  geom_point(aes(shape = factor(ifelse(dir == "dir3", "dir3", "dir5")), 
+                 fill = TE,
+                 color = ifelse(Geneid %in% highlight, "red", "black")),
+             size=3) +
+  scale_shape_manual(values = c("dir3" = 21, "dir5" = 25)) +
+  scale_color_identity() +
+  guides(color = FALSE) +
+  labs(x = NULL, y = NULL) +
+  guides(fill = FALSE, shape = FALSE, color = FALSE, alpha = FALSE) +
+  theme_classic() +
+  theme(
+    axis.text = element_text(size = 8, color = "black")
+  ) +
+geom_text_repel(aes(label = ifelse(Geneid %in% highlight, as.character(Geneid), NA)),
+                    size = 3, box.padding = 0.5, point.padding = 0.5)
+
+
+
+
+
+```
+
+
+
+```{r}
+heatsetcol$group <- "col"
+heatsetler$group <- "ler"
+heatsetcvi$group <- "cvi"
+
+heatsetcol <- heatsetcol[!grepl("others", heatsetcol$geneidmu, fixed = FALSE), ]
+heatsetler <- heatsetler[!grepl("others", heatsetler$geneidmu, fixed = FALSE), ]
+heatsetcvi <- heatsetcvi[!grepl("others", heatsetcvi$geneidmu, fixed = FALSE), ]
+
+heatset <- rbind(heatsetcol, heatsetler, heatsetcvi)
+heatset.onsen <- heatset
+heatset.onsen <- subset(heatset.onsen, select = -Geneid)
+heatset.onsen$Geneid <- heatset.onsen$geneidmu
+heatset.onsen <- subset(heatset.onsen, select = -geneidmu)
+heatset.onsen <- subset(heatset.onsen, select = -group)
+heatset.onsen <- subset(heatset.onsen, select = -type)
+heatset.onsen <- heatset.onsen[,c(5,1,2,3,4)]
+rownames(heatset.onsen) <- NULL
+
+custom_colors_box <- c("#a6d7df","#a6d7df","#a6d7df","#a6d7df","#a6d7df","#a6d7df","#a6d7df","#a6d7df",
+                       "#e3d950", "#e3d950","#e3d950","#e3d950","#e3d950","#e3d950",
+                       "#ab3946", "#ab3946","#ab3946")
+
+tiff("onsenshortexp.tiff", units="in", width=5, height=5, res=600)
+ggplot(heatset, aes(x=new_order, y=nor.counts, fill = new_order)) +
+  labs(x="", y="") + 
+  stat_boxplot(geom = "errorbar") +
+  geom_boxplot(outlier.size = 1) + 
+  theme_classic() +
+  theme(axis.text.x = element_text(
+    face="plain", color="black", 
+    vjust=0.6, size=6, angle=90),
+    axis.title.y = element_text(face="plain", color="black", vjust=0.6,size=6)) +
+    guides(fill = FALSE) +
+   scale_fill_manual(values = custom_colors_box) +
+  ylim(c(0,500))
+dev.off()
+```
+
+
+
+
+```{r}
+genexpcol$acc <- "col0"
+genexpcol <- genexpcol[genexpcol$core != "fill",]
+genexpcvi$acc <- "cvi0"
+genexpler$acc <- "ler1"
+
+# Create the plot with bigger points and non-overlapping labels
+
+genexpall <- rbind(genexpcol,genexpler,genexpcvi)
+genexpall.sub <- genexpall[genexpall$core!= "small",]
+genexpall.sub$highlight <- with(genexpall.sub, ifelse(log2FoldChange > 2 & padj < 0.0001 & baseMean > 100, 1, 0.4))
+
+genexpall.sub$accession <- ifelse(grepl("Copia35", genexpall.sub$core), "Copia-35",
+                                  ifelse(grepl("ONSEN", genexpall.sub$core), "ONSEN",
+                                          ifelse(grepl("TE", genexpall.sub$core), "Copia-35", "ONSEN")))
+
+
+genexpall.sub$facet_labels <- paste(genexpall.sub$side, genexpall.sub$accession, sep=" of ")
+genexpall.sub$facet_labels <- sub("upstream", "5' gene", genexpall.sub$facet_labels)
+genexpall.sub$facet_labels <- sub("downstream", "3' gene", genexpall.sub$facet_labels)
+
+# Define the desired order of subplots
+desired_order <- c("5' gene of ONSEN", "3' gene of ONSEN","5' gene of Copia-35", "3' gene of Copia-35")
+
+# Convert the facet_labels column to a factor with desired order
+genexpall.sub$facet_labels <- factor(genexpall.sub$facet_labels, levels = desired_order)
+
+tiff("onsenvolall.withlabels.tiff", units="in", width=15, height=20, res=300)
+ggplot(genexpall.sub, aes(x = log2FoldChange, y = -log10(padj))) +
+  geom_point(aes(shape = factor(ifelse(side == "upstream", "upstream", "not upstream")), 
+                 fill = acc, 
+                 alpha = highlight),
+             size = 10) +
+  scale_shape_manual(values = c("upstream" = 21, "not upstream" = 21)) +
+  scale_fill_manual(values = c("col0" = "#a6d7df", "cvi0" = "#ab3946", "ler1" = "#e3d950")) +
+  scale_alpha_continuous(range = c(0.2, 1)) +
+  xlim(c(-3, 15)) +
+  ylim(c(0, 300)) +
+  labs(x = "", y = "") +
+  guides(fill = FALSE, shape = FALSE, color = FALSE, alpha = FALSE) +
+  geom_text_repel(data = subset(genexpall.sub, core != "small" & log2FoldChange > 2 & padj < 0.0001 & baseMean > 100),
+                  aes(label = core),
+                  size = 9, alpha = 0.5, fontface = "bold", box.padding = 0.5) +
+  theme_classic() +
+  facet_wrap(~ facet_labels, ncol = 2) +
+  theme(
+    axis.text = element_text(size = 30, color = "black"),     # Set axis text color to black
+    axis.title = element_text(color = "black"),               # Set axis title color to black
+    strip.text = element_text(size = 30, color = "black")     # Set facet strip text color to black
+  )
+dev.off()
+
+tiff("onsenvolall.tiff", units="in", width=7.5, height=10, res=300)
+ggplot(genexpall.sub, aes(x = log2FoldChange, y = -log10(padj))) +
+  geom_point(aes(shape = factor(ifelse(side == "upstream", "upstream", "not upstream")), 
+                 fill = acc, 
+                 alpha = highlight),
+             size = 7) +
+  scale_shape_manual(values = c("upstream" = 21, "not upstream" = 21)) +
+  scale_fill_manual(values = c("col0" = "#a6d7df", "cvi0" = "#ab3946", "ler1" = "#e3d950")) +
+  scale_alpha_continuous(range = c(0.2, 1)) +
+  xlim(c(-3, 15)) +
+  ylim(c(0, 300)) +
+  labs(x = "", y = "") +
+  guides(fill = FALSE, shape = FALSE, color = FALSE, alpha = FALSE) +
+  theme_classic() +
+  facet_wrap(~ facet_labels, ncol = 2) +
+  theme(
+    axis.text = element_text(size = 15, color = "black"),     # Set axis text color to black
+    axis.title = element_text(color = "black"),               # Set axis title color to black
+    strip.text = element_text(size = 15, color = "black")     # Set facet strip text color to black
+  )
+dev.off()
+```
+
+
+```{r}
+transposable_element <- read.delim("/media/HDD0/wenbo/nanopore/arab/bamfiles/transposable_element.counts", comment.char="#")
+colnames(transposable_element)[7] <- "counts"
+transposable_element$geneidmu <- replace(transposable_element$Geneid, !(transposable_element$Geneid %in% full.length.col), "others")
+transposable_element$geneidmu <- replace(transposable_element$geneidmu, transposable_element$geneidmu == "AT5TE15240", "AT5G13205")
+transposable_element$geneidmu <- replace(transposable_element$geneidmu, transposable_element$geneidmu == "AT3TE92525", "AT3G61330")
+transposable_element$geneidmu <- replace(transposable_element$geneidmu, transposable_element$geneidmu == "AT1TE71045", "AT1G58140")
+transposable_element$geneidmu <- replace(transposable_element$geneidmu, transposable_element$geneidmu == "AT3TE54550", "AT3G32415")
+transposable_element$geneidmu <- replace(transposable_element$geneidmu, transposable_element$geneidmu == "AT3TE89830", "AT3G59720")
+transposable_element$geneidmu <- replace(transposable_element$geneidmu, transposable_element$geneidmu == "AT1TE24850", "AT1G21945")
+transposable_element$geneidmu <- replace(transposable_element$geneidmu, transposable_element$geneidmu == "AT1TE59755", "AT1G48710")
+transposable_element$geneidmu <- replace(transposable_element$geneidmu, transposable_element$geneidmu == "AT1TE12295", "AT1G11265")
+
+simple <- transposable_element[,c(8,6,7)][order(transposable_element$Length),]
+sumothers <- sum(simple$counts[simple$geneidmu == "others"])
+simple[nrow(simple) + 1,] <- c("Col-0-Others",NA,sumothers)
+simple <- simple[c(17:25),]
+rownames(simple) <- NULL
+colnames(simple) <- c("ONSEN ID", "Length", "ONT read counts")
+simple$Length <- as.numeric(simple$Length)
+simple$`ONT read counts` <- as.numeric(simple$`ONT read counts`)
+simple$nor.counts <- (1000*(simple$`ONT read counts`)/(simple$Length))/0.524496
+
+simplecol <- simple
+```
+
+```{r}
+transposable_element <- read.delim("/media/HDD0/wenbo/nanopore/arab/bamfiles/cvi.transposable_element.counts", comment.char="#")
+colnames(transposable_element)[7] <- "counts"
+full.length <- c("71d2113e-98c1-11ed-888d-0b6eccee87fb","71d7d4ca-98c1-11ed-88b5-0b6eccee87fb,Target 71d7fcca-98c1-11ed-88b6-0b6eccee87fb","71e947d2-98c1-11ed-8939-0b6eccee87fb")
+transposable_element$geneidmu <- replace(transposable_element$Geneid, !(transposable_element$Geneid %in% full.length), "others")
+
+transposable_element[320,8] <- "Cvi0-ONSEN-49"
+transposable_element[168,8] <- "Cvi0-ONSEN-27"
+transposable_element[207,8] <- "Cvi0-ONSEN-32"
+
+simple <- transposable_element[,c(8,6,7)][order(transposable_element$Length),]
+sumothers <- sum(simple$counts[simple$geneidmu == "others"])
+simple[nrow(simple) + 1,] <- c("Cvi-0-Others",NA,sumothers)
+rownames(simple) <- NULL
+simple <- simple[c(407:410),]
+rownames(simple) <- NULL
+colnames(simple) <- c ("ONSEN ID", "Length", "ONT read counts")
+simple$Length <- as.numeric(simple$Length)
+simple$`ONT read counts` <- as.numeric(simple$`ONT read counts`)
+simple$nor.counts <- (1000*(simple$`ONT read counts`)/(simple$Length))/0.390191
+
+simplecvi <- simple
+```
+
+```{r}
+
+transposable_element <- read.delim("/media/HDD0/wenbo/nanopore/arab/bamfiles/ler.transposable_element.counts", comment.char="#")
+colnames(transposable_element)[7] <- "counts"
+transposable_element$geneidmu <- replace(transposable_element$Geneid, !(transposable_element$Geneid %in% full.length.ler), "others")
+
+transposable_element$geneidmu <- replace(transposable_element$geneidmu, transposable_element$geneidmu == "88294fd0-6fae-11eb-b486-cd2899e563c0", "Ler1-ONSEN-13")
+transposable_element$geneidmu <- replace(transposable_element$geneidmu, transposable_element$geneidmu == "88448a84-6fae-11eb-b486-cd2899e563c0", "Ler1-ONSEN-23")
+transposable_element$geneidmu <- replace(transposable_element$geneidmu, transposable_element$geneidmu == "884f62f6-6fae-11eb-b486-cd2899e563c0", "Ler1-ONSEN-30")
+transposable_element$geneidmu <- replace(transposable_element$geneidmu, transposable_element$geneidmu == "88506156-6fae-11eb-b486-cd2899e563c0", "Ler1-ONSEN-31")
+transposable_element$geneidmu <- replace(transposable_element$geneidmu, transposable_element$geneidmu == "88520952-6fae-11eb-b486-cd2899e563c0,Target 88522e1e-6fae-11eb-b486-cd2899e563c0", "Ler1-ONSEN-32")
+transposable_element$geneidmu <- replace(transposable_element$geneidmu, transposable_element$geneidmu == "8852beba-6fae-11eb-b486-cd2899e563c0", "Ler1-ONSEN-33")
+
+simple <- transposable_element[,c(8,6,7)][order(transposable_element$Length),]
+sumothers <- sum(simple$counts[simple$geneidmu == "others"])
+simple[nrow(simple) + 1,] <- c("Ler-1-Others",NA,sumothers)
+rownames(simple) <- NULL
+simple <- simple[c(392:398),]
+rownames(simple) <- NULL
+colnames(simple) <- c ("ONSEN ID", "Length", "ONT read counts")
+simple$Length <- ifelse(is.na(simple$Length), "", simple$Length)
+simple$Length <- as.numeric(simple$Length)
+simple$`ONT read counts` <- as.numeric(simple$`ONT read counts`)
+simple$nor.counts <- (1000*(simple$`ONT read counts`)/(simple$Length))/0.191895
+
+simpleler <- simple
+```
+
+```{r}
+simpleall <- rbind(simplecol,simplecvi,simpleler)
+simpleall <- na.omit(simpleall)
+simpleall.onsen <- simpleall
+colnames(simpleall.onsen)[1] <- "ID"
+simpleall$`ONSEN ID` <- factor(simpleall$`ONSEN ID`, levels = c("AT1G11265","AT1G21945", "AT1G58140","AT3G32415","AT3G61330","AT3G59720","AT5G13205","AT1G48710","Ler1-ONSEN-31","Ler1-ONSEN-33","Ler1-ONSEN-32","Ler1-ONSEN-23","Ler1-ONSEN-13","Ler1-ONSEN-30","Cvi0-ONSEN-32","Cvi0-ONSEN-49","Cvi0-ONSEN-27"))
+
+custom_colors <- c("#a6d7df","#a6d7df","#a6d7df","#a6d7df","#a6d7df","#a6d7df","#a6d7df","#a6d7df",
+                   "#ab3946", "#ab3946","#ab3946","#e3d950","#e3d950","#e3d950",
+                   "#e3d950", "#e3d950","#e3d950")
+
+tiff("onsenlongexp.tiff", units="in", width=5, height=2.5, res=600)
+ggplot(simpleall, aes(x = `ONSEN ID`, y = as.numeric(as.character(nor.counts)), fill = `ONSEN ID`)) +
+  geom_bar(stat = "identity") +
+  # scale_fill_manual(values = custom_colors) +
+  labs(x="", y="") + 
+  theme_classic() +
+  scale_y_reverse() + 
+  theme(axis.text.x = element_text(face="plain", color="black", vjust=0.5, size=8, angle=90))+
+  geom_col_pattern(
+    aes(x = `ONSEN ID`, y = as.numeric(as.character(nor.counts))), 
+    fill    = custom_colors,
+    colour  = 'black',
+    pattern = 'stripe') +
+    guides(fill = FALSE)
+
+dev.off()
+```
+
+
+
